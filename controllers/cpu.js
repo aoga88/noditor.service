@@ -1,6 +1,5 @@
 var mongoose = require('mongoose');
 var CpuModel = require('../models/cpu.js');
-var os = require('os');
 var libCpuUsage = require( 'cpu-usage' );
 
 exports.saveActual = function(server){
