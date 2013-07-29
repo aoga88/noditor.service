@@ -14,5 +14,5 @@ exports.saveActual = function(server){
 			if(err)
 				console.log(err);
 		});
-    }, 1000);
+    }, 3000);
 }

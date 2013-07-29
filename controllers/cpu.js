@@ -4,7 +4,7 @@ var os = require('os');
 var libCpuUsage = require( 'cpu-usage' );
 
 exports.saveActual = function(server){
-	libCpuUsage( 1000, function( load ) {
+	libCpuUsage( 3000, function( load ) {
 	    var actualValue = new CpuModel.cpu({
 			server: server,
 			load: load

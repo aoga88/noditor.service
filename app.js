@@ -20,3 +20,22 @@ db.once('open', function callback(){
 	memoryController.saveActual(server);
 	diskController.saveActual(server);
 })
+
+var express = require('express'),
+  cons = require('consolidate'),
+  swig = require('swig');
+app = express();
+
+app.engine('.html', cons.swig);
+app.set('view engine', 'html');
+swig.init({
+    root: './views/webapp/',
+    allowErrors: true
+});
+app.set('views', './views/webapp/');
+app.use(express.static(__dirname + '/public'));
+
+var webapp = require('./controllers/webapp.js');
+app.get('/', webapp.app.home);
+
+app.listen(3000);

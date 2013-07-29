@@ -17,5 +17,5 @@ exports.saveActual = function(server){
 					console.log(err);
 			});
 		});
-    }, 1000);
+    }, 3000);
 }
