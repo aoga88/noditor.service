@@ -1,6 +1,12 @@
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/noditor');
 var os = require('os');
+var async = require('async');
+var usage = require('os-utils');
+var diskspace = require('diskspace');
+var request = require('request');
+
+
+var api = 'http://192.168.0.4:8080/api';
+//var api = 'http://noditor-turimovil.rhcloud.com/api';
 
 var server = {
 	name: os.hostname(),
@@ -8,34 +14,40 @@ var server = {
 	os: os.type()
 }
 
-var refreshInterval = 10000;
+this.state = {
+	id_servidor: '52fd9cfc8ec7900e15823c42'
+};
+var parent = this;
 
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error: '))
-db.once('open', function callback(){
-	var cpuController = require('./controllers/cpu.js');
-	var memoryController = require('./controllers/memory.js');
-	var diskController = require('./controllers/disk.js');
-	cpuController.saveActual(server);
-	memoryController.saveActual(server);
-	diskController.saveActual(server);
-})
+async.series({
+	one: function(callback) {
+		 usage.cpuUsage(function(v){
+                       parent.state.cpu = v;
+                 });
+		 
+                 setTimeout(function(){
+                       callback(null, '1');
+                 },1000);                
+ 	},
+	two: function(callback) {
+		var memoryController = require('./controllers/memory.js');
+		parent.state.memory = memoryController.getActual();
+		callback(null, 'two');
+	},
+	three: function(callback) {
+		diskspace.check('/', function (total, free, status)
+                {
+                    parent.state.disk = {
+                                total: total,
+                                free: free,
+                                status: status
+                        };
 
-var express = require('express'),
-  cons = require('consolidate'),
-  swig = require('swig');
-app = express();
-
-app.engine('.html', cons.swig);
-app.set('view engine', 'html');
-swig.init({
-    root: './views/webapp/',
-    allowErrors: true
+                });
+		setTimeout( function() {
+			callback(null, 'three');
+		}, 1000);
+	}
+}, function(err, results){
+	request.post( api + '/state').form(parent.state);
 });
-app.set('views', './views/webapp/');
-app.use(express.static(__dirname + '/public'));
-
-var webapp = require('./controllers/webapp.js');
-app.get('/', webapp.app.home);
-
-app.listen(3000);

@@ -1,0 +1,28 @@
+{
+ "name": "Noditor-Service",
+ "version": "1.0.0",
+ "description": "Noditor command line client",
+ "keywords": [
+   "noditor"
+ ],
+ "author": {
+   "name": "Osvaldo Garcia",
+   "email": "aoga88@gmail.com",
+   "url": "https://github.com/aoga88/noditor.service"
+ },
+ "engines": {
+   "node": ">= 0.6.0",
+   "npm": ">= 1.0.0"
+ },
+ "dependencies": {
+    "request": "*",
+    "cpu-usage": "*",
+    "diskspace": "*",
+    "async": "*",
+    "os-utils": "*"
+ },
+ "devDependencies": {},
+ "bundleDependencies": [],
+ "private": true,
+ "main": "app.js"
+}
