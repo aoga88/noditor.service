@@ -1,7 +1,29 @@
-import psutil, json, requests
+#!/usr/bin/python
+import psutil, json, requests, getpass, hashlib
 memory = psutil.virtual_memory()
 swap = psutil.swap_memory()
 disk = {'part': [], 'usage': {}}
+server_id = '2'
+noditor_url = 'http://10.110.103.52:8080'
+
+def configure_app():
+        print "The application should be configured."
+        print "Please login in your noditor account:"
+        email = raw_input("Email:")
+        print email
+	password = getpass.getpass("Password:")
+	print password
+	m = hashlib.sha1()
+	m.update(password)
+	m.hexdigest()
+	userObj = {
+		'email': email,
+		'password': m.hexdigest()
+	}
+	requestUrl = noditor_url + '/api/user/login'
+	print requestUrl
+	login = requests.post(requestUrl, userObj)
+	print login.json()
 
 for index in psutil.disk_partitions():
 	disk['part'].append(index)
@@ -37,6 +59,11 @@ data = {'server_id': server_id,
 	'disk': disk
 	}
 
-r = requests.post('https://10.110.103.52:8080/api/serverdata')
+#r = requests.post('https://10.110.103.52:8080/api/serverdata')
 
-print json.JSONEncoder().encode(data)
+try:
+	config = open('noditor.conf', 'r')
+except IOError:
+	configure_app()
+
+#print json.JSONEncoder().encode(data)
