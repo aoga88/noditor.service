@@ -3,7 +3,7 @@ import psutil, json, requests, getpass, hashlib
 memory = psutil.virtual_memory()
 swap = psutil.swap_memory()
 disk = {'part': {}, 'usage': {}}
-noditor_url = 'http://192.168.0.2:8080'
+noditor_url = 'http://noditor.me'
 
 def configure_app():
         print "\n\nThe application should be configured."
