@@ -4,15 +4,13 @@ memory = psutil.virtual_memory()
 swap = psutil.swap_memory()
 disk = {'part': [], 'usage': {}}
 server_id = '2'
-noditor_url = 'http://10.110.103.52:8080'
+noditor_url = 'http://192.168.0.2:8080'
 
 def configure_app():
-        print "The application should be configured."
+        print "\n\nThe application should be configured."
         print "Please login in your noditor account:"
         email = raw_input("Email:")
-        print email
 	password = getpass.getpass("Password:")
-	print password
 	m = hashlib.sha1()
 	m.update(password)
 	m.hexdigest()
@@ -21,9 +19,35 @@ def configure_app():
 		'password': m.hexdigest()
 	}
 	requestUrl = noditor_url + '/api/user/login'
-	print requestUrl
 	login = requests.post(requestUrl, userObj)
-	print login.json()
+	user = login.json()
+	
+	try:
+		#print user['_id']
+		user_id = user['_id']
+		serverObj = {
+			'user': user_id
+		}
+		servers = requests.post(noditor_url + '/api/server/find', serverObj, auth=(email, user_id))
+		serversArray = servers.json()
+		print "\n\nSelect the server you are seting up:"
+		indexServer = 1
+		for server in serversArray:
+			print '\t' + str(indexServer) + '. ' + server['name']
+			indexServer = indexServer + 1
+		selectedServer = raw_input("Type the server digit: ")
+		configuration = {
+			'user': email,
+			'password': userObj['password'],
+			'server_id': serversArray[int(selectedServer) - 1]['_id']
+		}
+		configurationFile = open('noditor.conf', 'w+')
+		configurationFile.write(json.JSONEncoder().encode(configuration))
+		
+		print "The noditor script has been configured successfuly\n"
+		
+	except KeyError:
+		print "The email or password are incorrect. Please try again"
 
 for index in psutil.disk_partitions():
 	disk['part'].append(index)
@@ -62,7 +86,10 @@ data = {'server_id': server_id,
 #r = requests.post('https://10.110.103.52:8080/api/serverdata')
 
 try:
-	config = open('noditor.conf', 'r')
+	configFile = open('noditor.conf', 'r')
+	configStr  = configFile.read()
+	config = json.JSONDecoder().decode(configStr)
+	print config['server_id']
 except IOError:
 	configure_app()
 
